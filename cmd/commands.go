@@ -3,12 +3,17 @@ package cmd
 import (
 	"fmt"
 	"os"
+
+	"github.com/CLBRITTON2/go-git-good/internal"
 )
 
-func Execute(argument string) {
+func Execute(argument string, path string) {
 	switch argument {
 	case "init":
-		fmt.Println("Git init placeholder...")
+		_, err := internal.CreateRepository(path)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+		}
 	case "add":
 		fmt.Println("Git add placeholder...")
 	case "commit":
