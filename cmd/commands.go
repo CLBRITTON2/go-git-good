@@ -23,7 +23,9 @@ func Execute(command string, flags []string) {
 func PrintUsage() {
 	fmt.Println("Go-Git-Good Usage: gitgood <command> <args>")
 	fmt.Println("Commands:")
-	fmt.Println("init          Create an empty GGG repository")
+	fmt.Println("init          Create an empty gitgood repository")
+	fmt.Println("hash-object   Compute object ID and optionally write an object to the DB")
+	fmt.Println("cat-file      Print the contents of an object in the DB")
 	fmt.Println("add           Add file contents to the repository")
 	fmt.Println("commit        Save changes to the repository")
 	os.Exit(1)
