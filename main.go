@@ -12,9 +12,6 @@ func main() {
 	}
 
 	gitCommand := os.Args[1]
-	path := "."
-	if len(os.Args) > 2 {
-		path = os.Args[2]
-	}
-	cmd.Execute(gitCommand, path)
+	flags := os.Args[2:]
+	cmd.Execute(gitCommand, flags)
 }

@@ -1,7 +1,10 @@
-package internal
+package objects
 
 import (
+	"bytes"
+	"compress/zlib"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 )
@@ -82,7 +85,6 @@ func FindRepository(path string) (*Repository, error) {
 	}
 
 	gitDirectory := filepath.Join(path, ".gitgood")
-
 	if info, err := os.Stat(gitDirectory); err == nil && info.IsDir() {
 		repository := Repository{
 			WorkTree:     path,
@@ -98,4 +100,66 @@ func FindRepository(path string) (*Repository, error) {
 	}
 
 	return FindRepository(parentDirectory)
+}
+
+func (repository *Repository) WriteObject(objectHash string, objectData []byte, objectType string) error {
+	// The subdirectory to write the object to is the first 2 characters of the SHA-1
+	// The reamining 38 characters are the filename
+	directory := objectHash[0:2]
+	path := filepath.Join(repository.GitDirectory, "objects")
+	objectDirectory := filepath.Join(path, directory)
+	err := os.MkdirAll(objectDirectory, 0755)
+	if err != nil {
+		return fmt.Errorf("error making write object directory: %v", err)
+	}
+
+	var buffer bytes.Buffer
+	writer := zlib.NewWriter(&buffer)
+	header := fmt.Sprintf("%v %d\x00", objectType, len(objectData))
+	dataToWrite := append([]byte(header), objectData...)
+	_, err = writer.Write(dataToWrite)
+	if err != nil {
+		return fmt.Errorf("error compressing object data: %v", err)
+	}
+	writer.Close()
+
+	hashFileName := objectHash[2:]
+	objectFilePath := filepath.Join(objectDirectory, hashFileName)
+
+	err = os.WriteFile(objectFilePath, buffer.Bytes(), 0664)
+	if err != nil {
+		return fmt.Errorf("error writing compressed data to file: %v", err)
+	}
+	return nil
+}
+
+func (repository *Repository) ReadObject(objectHash string) (string, error) {
+	directory := objectHash[0:2]
+	path := filepath.Join(repository.GitDirectory, "objects")
+	objectDirectory := filepath.Join(path, directory)
+
+	hashFileName := objectHash[2:]
+	objectFilePath := filepath.Join(objectDirectory, hashFileName)
+	compressedData, err := os.ReadFile(objectFilePath)
+	if err != nil {
+		return "", fmt.Errorf("error reading compressed object file: %v", err)
+	}
+
+	reader, err := zlib.NewReader(bytes.NewReader(compressedData))
+	if err != nil {
+		return "", fmt.Errorf("error creating zlib reader %v", err)
+	}
+	defer reader.Close()
+
+	var decompressedData bytes.Buffer
+	_, err = io.Copy(&decompressedData, reader)
+	if err != nil {
+		return "", fmt.Errorf("error decompressing object data: %v", err)
+	}
+
+	nullIndex := bytes.IndexByte(decompressedData.Bytes(), byte('\x00'))
+	if nullIndex == -1 {
+		return "", fmt.Errorf("invalid object format: no null byte found")
+	}
+	return string(decompressedData.Bytes()[nullIndex+1:]), nil
 }
