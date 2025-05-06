@@ -7,7 +7,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 type Repository struct {
@@ -125,14 +124,14 @@ func (repository *Repository) WriteObject(objectHash string, serializedData []by
 	hashFileName := objectHash[2:]
 	objectFilePath := filepath.Join(objectDirectory, hashFileName)
 
-	err = os.WriteFile(objectFilePath, buffer.Bytes(), 0664)
+	err = os.WriteFile(objectFilePath, buffer.Bytes(), 0644)
 	if err != nil {
 		return fmt.Errorf("error writing compressed data to file: %v", err)
 	}
 	return nil
 }
 
-func (repository *Repository) ReadObject(objectHash string) (string, error) {
+func (repository *Repository) ReadObject(objectHash string) ([]byte, error) {
 	directory := objectHash[0:2]
 	path := filepath.Join(repository.GitDirectory, "objects")
 	objectDirectory := filepath.Join(path, directory)
@@ -141,41 +140,20 @@ func (repository *Repository) ReadObject(objectHash string) (string, error) {
 	objectFilePath := filepath.Join(objectDirectory, hashFileName)
 	compressedData, err := os.ReadFile(objectFilePath)
 	if err != nil {
-		return "", fmt.Errorf("error reading compressed object file: %v", err)
+		return nil, fmt.Errorf("error reading compressed object file: %v", err)
 	}
 
 	reader, err := zlib.NewReader(bytes.NewReader(compressedData))
 	if err != nil {
-		return "", fmt.Errorf("error creating zlib reader %v", err)
+		return nil, fmt.Errorf("error creating zlib reader %v", err)
 	}
 	defer reader.Close()
 
 	var decompressedData bytes.Buffer
 	_, err = io.Copy(&decompressedData, reader)
 	if err != nil {
-		return "", fmt.Errorf("error decompressing object data: %v", err)
+		return nil, fmt.Errorf("error decompressing object data: %v", err)
 	}
 
-	nullIndex := bytes.IndexByte(decompressedData.Bytes(), byte('\x00'))
-	if nullIndex == -1 {
-		return "", fmt.Errorf("invalid object format: no null byte found")
-	}
-
-	header := string(decompressedData.Bytes()[:nullIndex])
-	parts := strings.Split(header, " ")
-	if len(parts) != 2 {
-		return "", fmt.Errorf("invalid object header format expected <type> <data length> got: %s", header)
-	}
-	objectType := parts[0]
-
-	switch objectType {
-	case "blob":
-		blob, err := DeserializeBlob(decompressedData.Bytes(), objectHash)
-		if err != nil {
-			return "", fmt.Errorf("error deserializing blob: %v", err)
-		}
-		return string(blob.Data), nil
-	default:
-		return "", fmt.Errorf("unknown object type: %s", objectType)
-	}
+	return decompressedData.Bytes(), nil
 }
