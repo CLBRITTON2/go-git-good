@@ -1,10 +1,12 @@
 package objects
 
 import (
+	"bytes"
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
 	"os"
+	"strings"
 )
 
 type Blob struct {
@@ -31,6 +33,28 @@ func (blob *Blob) Serialize() []byte {
 	header := fmt.Sprintf("blob %d\x00", len(blob.Data))
 	data := append([]byte(header), blob.Data...)
 	return data
+}
+
+// Create blob format from storage format
+func DeserializeBlob(rawData []byte, hash string) (*Blob, error) {
+	nullIndex := bytes.IndexByte(rawData, byte('\x00'))
+	if nullIndex == -1 {
+		return nil, fmt.Errorf("invalid blob format: no null byte found")
+	}
+
+	header := string(rawData[:nullIndex])
+	parts := strings.Split(header, " ")
+	if len(parts) != 2 || parts[0] != "blob" {
+		return nil, fmt.Errorf("invalid blob header format: %s", header)
+	}
+
+	data := rawData[nullIndex+1:]
+	blob := &Blob{
+		Hash: hash,
+		Data: data,
+	}
+
+	return blob, nil
 }
 
 func CalculateHash(encodedData []byte) string {
