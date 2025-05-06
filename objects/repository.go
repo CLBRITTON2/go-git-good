@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type Repository struct {
@@ -102,7 +103,7 @@ func FindRepository(path string) (*Repository, error) {
 	return FindRepository(parentDirectory)
 }
 
-func (repository *Repository) WriteObject(objectHash string, objectData []byte, objectType string) error {
+func (repository *Repository) WriteObject(objectHash string, serializedData []byte) error {
 	// The subdirectory to write the object to is the first 2 characters of the SHA-1
 	// The reamining 38 characters are the filename
 	directory := objectHash[0:2]
@@ -115,9 +116,7 @@ func (repository *Repository) WriteObject(objectHash string, objectData []byte, 
 
 	var buffer bytes.Buffer
 	writer := zlib.NewWriter(&buffer)
-	header := fmt.Sprintf("%v %d\x00", objectType, len(objectData))
-	dataToWrite := append([]byte(header), objectData...)
-	_, err = writer.Write(dataToWrite)
+	_, err = writer.Write(serializedData)
 	if err != nil {
 		return fmt.Errorf("error compressing object data: %v", err)
 	}
@@ -161,5 +160,15 @@ func (repository *Repository) ReadObject(objectHash string) (string, error) {
 	if nullIndex == -1 {
 		return "", fmt.Errorf("invalid object format: no null byte found")
 	}
+
+	// Just printing object type at the moment - we will need the type
+	// for determing how to deal with each object once more exist
+	header := string(decompressedData.Bytes()[:nullIndex])
+	parts := strings.Split(header, " ")
+	if len(parts) != 2 {
+		return "", fmt.Errorf("invalid object header format expected <type> <data length> got: %s", header)
+	}
+	objectType := parts[0]
+	fmt.Printf("Type: %v\n", objectType)
 	return string(decompressedData.Bytes()[nullIndex+1:]), nil
 }

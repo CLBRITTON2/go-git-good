@@ -9,30 +9,33 @@ import (
 
 type Blob struct {
 	Hash string
-	Size int
 	Data []byte
 }
 
-func CreateBlob(fileToBlob string) (*Blob, error) {
+func CreateBlobFromFile(fileToBlob string) (*Blob, error) {
 	data, err := os.ReadFile(fileToBlob)
 	if err != nil {
 		return nil, fmt.Errorf("error reading file for blob: %v", fileToBlob)
 	}
-	size := len(data)
 	newBlob := &Blob{
-		Size: size,
 		Data: data,
 	}
 
-	newBlob.Hash = CalculateHash("blob", newBlob.Data)
+	encodedData := newBlob.Serialize()
+	newBlob.Hash = CalculateHash(encodedData)
 	return newBlob, nil
 }
 
-func CalculateHash(objectType string, objectData []byte) string {
-	header := fmt.Sprintf("%s %d\x00", objectType, len(objectData))
-	data := append([]byte(header), objectData...)
+// Create blob storage format for writing
+func (blob *Blob) Serialize() []byte {
+	header := fmt.Sprintf("blob %d\x00", len(blob.Data))
+	data := append([]byte(header), blob.Data...)
+	return data
+}
+
+func CalculateHash(encodedData []byte) string {
 	hasher := sha1.New()
-	hasher.Write(data)
+	hasher.Write(encodedData)
 	hash := hasher.Sum(nil)
 	return hex.EncodeToString(hash)
 }

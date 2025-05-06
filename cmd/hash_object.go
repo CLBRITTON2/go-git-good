@@ -27,7 +27,7 @@ func HashObject(flags []string) {
 		file = flags[0]
 	}
 
-	blob, err := objects.CreateBlob(file)
+	blob, err := objects.CreateBlobFromFile(file)
 	if err != nil {
 		fmt.Printf("%v\n", err)
 	}
@@ -43,7 +43,8 @@ func HashObject(flags []string) {
 		return
 	}
 
-	err = repository.WriteObject(blob.Hash, blob.Data, "blob")
+	serializedBlobData := blob.Serialize()
+	err = repository.WriteObject(blob.Hash, serializedBlobData)
 	if err != nil {
 		fmt.Printf("%v\n", err)
 	}
