@@ -14,5 +14,6 @@ func Init(flags []string) {
 	_, err := objects.CreateRepository(path)
 	if err != nil {
 		fmt.Printf("%v\n", err)
+		return
 	}
 }
