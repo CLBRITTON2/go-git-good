@@ -27,20 +27,23 @@ func CatFile(flags []string) {
 	rawObjectData, err := repository.ReadObject(objectHash)
 	if err != nil {
 		fmt.Printf("%v\n", err)
+		return
 	}
 
 	nullIndex := bytes.IndexByte(rawObjectData, byte('\x00'))
 	if nullIndex == -1 {
 		fmt.Printf("invalid object format: no null byte found")
+		return
 	}
 
 	header := string(rawObjectData[:nullIndex])
 	parts := strings.Split(header, " ")
 	if len(parts) != 2 {
 		fmt.Printf("invalid object header format expected <type> <data length> got: %s", header)
+		return
 	}
 	objectType := parts[0]
-	content := string(rawObjectData[nullIndex:])
+	content := string(rawObjectData[nullIndex+1:])
 	switch objectType {
 	case "blob":
 		fmt.Printf("%v\n", content)
