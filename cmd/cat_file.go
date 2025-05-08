@@ -46,7 +46,7 @@ func CatFile(flags []string) {
 	content := string(rawObjectData[nullIndex+1:])
 	switch objectType {
 	case "blob":
-		fmt.Printf("%v\n", content)
+		fmt.Printf("%v", content)
 	}
 }
 

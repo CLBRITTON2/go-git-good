@@ -33,8 +33,11 @@ func HashObject(flags []string) {
 		return
 	}
 
+	serializedBlobData := blob.Serialize()
+	blobHash := objects.CalculateHash(serializedBlobData)
+
 	if !write {
-		fmt.Printf("%v\n", blob.Hash)
+		fmt.Printf("%v\n", blobHash)
 		return
 	}
 
@@ -44,13 +47,12 @@ func HashObject(flags []string) {
 		return
 	}
 
-	serializedBlobData := blob.Serialize()
-	err = repository.WriteObject(blob.Hash, serializedBlobData)
+	err = repository.WriteObject(blobHash, serializedBlobData)
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
 	}
-	fmt.Printf("%v\n", blob.Hash)
+	fmt.Printf("%v\n", blobHash)
 }
 
 func printHashObjectUsage() {

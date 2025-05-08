@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 )
 
 func Execute(command string, flags []string) {
@@ -17,6 +16,9 @@ func Execute(command string, flags []string) {
 		fmt.Println("Git add placeholder...")
 	case "commit":
 		fmt.Println("Git commit placeholder...")
+	default:
+		fmt.Println("Unsupported command...")
+		PrintUsage()
 	}
 }
 
@@ -28,5 +30,4 @@ func PrintUsage() {
 	fmt.Println("cat-file      Print the contents of an object in the DB")
 	fmt.Println("add           Add file contents to the repository")
 	fmt.Println("commit        Save changes to the repository")
-	os.Exit(1)
 }

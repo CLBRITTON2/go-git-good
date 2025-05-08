@@ -38,7 +38,7 @@ func CreateRepository(path string) (*Repository, error) {
 		return nil, fmt.Errorf("git repository already exists at %v", path)
 	}
 
-	fmt.Printf("Creating an empty git repository at: %v\n", path)
+	fmt.Printf("Creating an empty gitgood repository at: %v\n", path)
 	err = os.MkdirAll(repository.GitDirectory, 0755)
 	if err != nil {
 		return nil, fmt.Errorf("error creating .git directory: %v", err)

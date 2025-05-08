@@ -8,7 +8,6 @@ import (
 )
 
 type Blob struct {
-	Hash string
 	Data []byte
 }
 
@@ -27,15 +26,12 @@ func CreateBlobFromFile(fileToBlob string) (*Blob, error) {
 	newBlob := &Blob{
 		Data: data,
 	}
-
-	encodedData := newBlob.Serialize()
-	newBlob.Hash = CalculateHash(encodedData)
 	return newBlob, nil
 }
 
-func CalculateHash(encodedData []byte) string {
+func CalculateHash(serializedData []byte) string {
 	hasher := sha1.New()
-	hasher.Write(encodedData)
+	hasher.Write(serializedData)
 	hash := hasher.Sum(nil)
 	return hex.EncodeToString(hash)
 }
