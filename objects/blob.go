@@ -29,9 +29,16 @@ func CreateBlobFromFile(fileToBlob string) (*Blob, error) {
 	return newBlob, nil
 }
 
-func CalculateHash(serializedData []byte) string {
+func CalculateHashString(serializedData []byte) string {
 	hasher := sha1.New()
 	hasher.Write(serializedData)
 	hash := hasher.Sum(nil)
 	return hex.EncodeToString(hash)
+}
+
+func CalculateHashBytes(serializedData []byte) []byte {
+	hasher := sha1.New()
+	hasher.Write(serializedData)
+	hash := hasher.Sum(nil)
+	return hash
 }

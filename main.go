@@ -9,6 +9,7 @@ import (
 func main() {
 	if len(os.Args) < 2 {
 		cmd.PrintUsage()
+		return
 	}
 
 	gitCommand := os.Args[1]

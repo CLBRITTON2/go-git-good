@@ -12,6 +12,8 @@ func Execute(command string, flags []string) {
 		HashObject(flags)
 	case "cat-file":
 		CatFile(flags)
+	case "update-index":
+		UpdateIndex(flags)
 	case "add":
 		fmt.Println("Git add placeholder...")
 	case "commit":

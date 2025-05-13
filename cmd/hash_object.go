@@ -34,7 +34,7 @@ func HashObject(flags []string) {
 	}
 
 	serializedBlobData := blob.Serialize()
-	blobHash := objects.CalculateHash(serializedBlobData)
+	blobHash := objects.CalculateHashString(serializedBlobData)
 
 	if !write {
 		fmt.Printf("%v\n", blobHash)
