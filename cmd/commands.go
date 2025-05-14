@@ -14,10 +14,8 @@ func Execute(command string, flags []string) {
 		CatFile(flags)
 	case "update-index":
 		UpdateIndex(flags)
-	case "add":
-		fmt.Println("Git add placeholder...")
-	case "commit":
-		fmt.Println("Git commit placeholder...")
+	case "ls-files":
+		LsFiles(flags)
 	default:
 		fmt.Println("Unsupported command...")
 		PrintUsage()
@@ -30,6 +28,6 @@ func PrintUsage() {
 	fmt.Println("init          Create an empty gitgood repository")
 	fmt.Println("hash-object   Compute object ID and optionally write an object to the DB")
 	fmt.Println("cat-file      Print the contents of an object in the DB")
-	fmt.Println("add           Add file contents to the repository")
-	fmt.Println("commit        Save changes to the repository")
+	fmt.Println("update-index  Add a file to the staging area (index)")
+	fmt.Println("ls-files      Show information about files in the index")
 }

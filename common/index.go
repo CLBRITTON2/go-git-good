@@ -35,7 +35,6 @@ func FindIndex(repository *Repository) (*Index, error) {
 		}
 		return nil, err
 	}
-	fmt.Printf("Index file found at %s\n", indexPath)
 	return index, nil
 }
 

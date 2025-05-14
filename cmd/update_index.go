@@ -14,7 +14,7 @@ func UpdateIndex(flags []string) {
 		printUpdateIndexUsage()
 	}
 	if flags[0] != "-add" {
-		fmt.Println("Unsupported command...")
+		fmt.Println("Unsupported flag...")
 		printUpdateIndexUsage()
 		return
 	}
