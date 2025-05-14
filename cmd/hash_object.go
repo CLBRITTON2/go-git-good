@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/CLBRITTON2/go-git-good/common"
 	"github.com/CLBRITTON2/go-git-good/objects"
 )
 
@@ -33,26 +34,25 @@ func HashObject(flags []string) {
 		return
 	}
 
-	serializedBlobData := blob.Serialize()
-	blobHash := objects.CalculateHashString(serializedBlobData)
-
 	if !write {
-		fmt.Printf("%v\n", blobHash)
+		fmt.Printf("%v\n", blob.Hash)
 		return
 	}
 
-	repository, err := objects.FindRepository(".")
+	repository, err := common.FindRepository(".")
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
 	}
 
-	err = repository.WriteObject(blobHash, serializedBlobData)
+	blobHashString := blob.Hash.String()
+	serializedBlobData := blob.Serialize()
+	err = repository.WriteObject(blobHashString, serializedBlobData)
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
 	}
-	fmt.Printf("%v\n", blobHash)
+	fmt.Printf("%v\n", blob.Hash)
 }
 
 func printHashObjectUsage() {

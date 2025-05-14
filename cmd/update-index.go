@@ -5,15 +5,16 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/CLBRITTON2/go-git-good/common"
 	"github.com/CLBRITTON2/go-git-good/objects"
 )
 
 func UpdateIndex(flags []string) {
-	if len(flags) == 0 {
+	if len(flags) < 2 {
 		printUpdateIndexUsage()
 	}
 	if flags[0] != "-add" {
-		fmt.Println("Unsupportd command...")
+		fmt.Println("Unsupported command...")
 		printUpdateIndexUsage()
 		return
 	}
@@ -28,6 +29,7 @@ func UpdateIndex(flags []string) {
 	fileInfo, err := os.Stat(absolutePath)
 	if err != nil {
 		fmt.Printf("%v\n", err)
+		return
 	}
 
 	blob, err := objects.CreateBlobFromFile(file)
@@ -35,10 +37,19 @@ func UpdateIndex(flags []string) {
 		fmt.Printf("%v\n", err)
 		return
 	}
-	serializedBlobData := blob.Serialize()
+
+	repository, err := common.FindRepository(".")
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		return
+	}
+	indexRelativePath, err := filepath.Rel(repository.WorkTree, absolutePath)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		return
+	}
 
 	// Start getting metadata for the index file
-	blobHashBytes := objects.CalculateHashBytes(serializedBlobData)
 	modifiedTime := fileInfo.ModTime()
 	fileSize := uint32(fileInfo.Size())
 	mode := fileInfo.Mode()
@@ -54,38 +65,29 @@ func UpdateIndex(flags []string) {
 		}
 	}
 
+	// Just file permissions 644/755
 	if fileModeInt != 0100644 && fileModeInt != 0100755 {
 		fmt.Println("Unsupported file mode discovered at update-index command")
 		return
 	}
 
-	repository, err := objects.FindRepository(".")
-	if err != nil {
-		fmt.Printf("%v\n", err)
-		return
-	}
-	indexRelativePath, err := filepath.Rel(repository.WorkTree, absolutePath)
-	if err != nil {
-		fmt.Printf("%v\n", err)
-		return
-	}
-
-	indexEntry := &objects.IndexEntry{
+	indexEntry := &common.IndexEntry{
 		ModifiedTime: modifiedTime,
-		Hash:         [20]byte(blobHashBytes),
+		Hash:         blob.Hash,
 		FileSize:     fileSize,
 		FileMode:     fileModeInt,
 		EntryPath:    indexRelativePath,
 	}
 
-	index, err := objects.FindIndex(repository)
+	currentIndex, err := common.FindIndex(repository)
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
 	}
-	index.AddEntry(indexEntry)
+	currentIndex.AddEntry(indexEntry)
 
-	if err := objects.WriteIndex(repository, index); err != nil {
+	err = common.WriteIndex(repository, currentIndex)
+	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
 	}

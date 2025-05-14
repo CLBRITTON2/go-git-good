@@ -1,21 +1,15 @@
 package objects
 
 import (
-	"crypto/sha1"
-	"encoding/hex"
 	"fmt"
 	"os"
+
+	"github.com/CLBRITTON2/go-git-good/common"
 )
 
 type Blob struct {
+	Hash common.Hash
 	Data []byte
-}
-
-// Create blob storage format for writing
-func (blob *Blob) Serialize() []byte {
-	header := fmt.Sprintf("blob %d\x00", len(blob.Data))
-	data := append([]byte(header), blob.Data...)
-	return data
 }
 
 func CreateBlobFromFile(fileToBlob string) (*Blob, error) {
@@ -25,20 +19,14 @@ func CreateBlobFromFile(fileToBlob string) (*Blob, error) {
 	}
 	newBlob := &Blob{
 		Data: data,
+		Hash: common.HashObject("blob", data),
 	}
 	return newBlob, nil
 }
 
-func CalculateHashString(serializedData []byte) string {
-	hasher := sha1.New()
-	hasher.Write(serializedData)
-	hash := hasher.Sum(nil)
-	return hex.EncodeToString(hash)
-}
-
-func CalculateHashBytes(serializedData []byte) []byte {
-	hasher := sha1.New()
-	hasher.Write(serializedData)
-	hash := hasher.Sum(nil)
-	return hash
+// Create blob storage format for writing
+func (blob *Blob) Serialize() []byte {
+	header := fmt.Sprintf("blob %d\x00", len(blob.Data))
+	data := append([]byte(header), blob.Data...)
+	return data
 }

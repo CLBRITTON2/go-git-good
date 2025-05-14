@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/CLBRITTON2/go-git-good/objects"
+	"github.com/CLBRITTON2/go-git-good/common"
 )
 
 func Init(flags []string) {
@@ -11,7 +11,7 @@ func Init(flags []string) {
 	if len(flags) >= 1 {
 		path = flags[0]
 	}
-	_, err := objects.CreateRepository(path)
+	_, err := common.CreateRepository(path)
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return

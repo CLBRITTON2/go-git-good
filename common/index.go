@@ -1,4 +1,4 @@
-package objects
+package common
 
 import (
 	"bytes"
@@ -17,7 +17,7 @@ type Index struct {
 
 type IndexEntry struct {
 	ModifiedTime time.Time
-	Hash         [20]byte
+	Hash         Hash
 	FileSize     uint32
 	FileMode     uint32
 	EntryPath    string

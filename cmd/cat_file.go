@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/CLBRITTON2/go-git-good/objects"
+	"github.com/CLBRITTON2/go-git-good/common"
 )
 
 func CatFile(flags []string) {
@@ -18,7 +18,7 @@ func CatFile(flags []string) {
 		fmt.Printf("invalid hash length: expected length 40 got %v\n", len(objectHash))
 		return
 	}
-	repository, err := objects.FindRepository(".")
+	repository, err := common.FindRepository(".")
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
