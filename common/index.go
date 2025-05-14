@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"time"
 )
 
@@ -152,4 +153,14 @@ func (index *Index) AddEntry(entry *IndexEntry) {
 
 	index.Entries = append(index.Entries, entry)
 	index.NumberOfEntries = uint32(len(index.Entries))
+}
+
+func (index *Index) RemoveEntry(entryPath string) {
+	for i, entry := range index.Entries {
+		if entry.EntryPath == entryPath {
+			index.Entries = slices.Delete(index.Entries, i, i+1)
+			index.NumberOfEntries = uint32(len(index.Entries))
+			return
+		}
+	}
 }

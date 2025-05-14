@@ -21,17 +21,17 @@ func LsFiles(flags []string) {
 	index, err := common.FindIndex(repository)
 	if err != nil {
 		fmt.Printf("%v\n", err)
+		return
 	}
 
-	if flags[0] == "-s" {
+	if len(flags) == 1 && flags[0] == "-s" {
 		for _, entry := range index.Entries {
 			fmt.Printf("%o %v         %v\n", entry.FileMode, entry.Hash.String(), entry.EntryPath)
-			return
 		}
-
-		for _, entry := range index.Entries {
-			fmt.Printf("%v\n", entry.EntryPath)
-		}
+		return
+	}
+	for _, entry := range index.Entries {
+		fmt.Printf("%v\n", entry.EntryPath)
 	}
 }
 

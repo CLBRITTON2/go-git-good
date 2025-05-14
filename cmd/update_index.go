@@ -13,13 +13,12 @@ func UpdateIndex(flags []string) {
 	if len(flags) < 2 {
 		printUpdateIndexUsage()
 	}
-	if flags[0] != "-add" {
+	if flags[0] != "-add" && flags[0] != "-rm" {
 		fmt.Println("Unsupported flag...")
 		printUpdateIndexUsage()
 		return
 	}
 
-	// Get absolute path from the file and ensure we have a file to make a blob
 	file := flags[1]
 	absolutePath, err := filepath.Abs(file)
 	if err != nil {
@@ -32,18 +31,37 @@ func UpdateIndex(flags []string) {
 		return
 	}
 
-	blob, err := objects.CreateBlobFromFile(file)
-	if err != nil {
-		fmt.Printf("%v\n", err)
-		return
-	}
-
+	// Find the repository, find the index, create the index entry path
+	// Which is the object's path relative to the work tree
 	repository, err := common.FindRepository(".")
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
 	}
-	indexRelativePath, err := filepath.Rel(repository.WorkTree, absolutePath)
+	currentIndex, err := common.FindIndex(repository)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		return
+	}
+	indexEntryRelativePath, err := filepath.Rel(repository.WorkTree, absolutePath)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		return
+	}
+
+	// We have the entry's path, if the -rm flag was passed we're safe to skip
+	// metadata gathering for writing files to the index and just remove the entry
+	if flags[0] == "-rm" {
+		currentIndex.RemoveEntry(indexEntryRelativePath)
+		err = common.WriteIndex(repository, currentIndex)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			return
+		}
+		return
+	}
+
+	blob, err := objects.CreateBlobFromFile(file)
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
@@ -76,14 +94,9 @@ func UpdateIndex(flags []string) {
 		Hash:         blob.Hash,
 		FileSize:     fileSize,
 		FileMode:     fileModeInt,
-		EntryPath:    indexRelativePath,
+		EntryPath:    indexEntryRelativePath,
 	}
 
-	currentIndex, err := common.FindIndex(repository)
-	if err != nil {
-		fmt.Printf("%v\n", err)
-		return
-	}
 	currentIndex.AddEntry(indexEntry)
 
 	err = common.WriteIndex(repository, currentIndex)
