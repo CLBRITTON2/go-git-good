@@ -12,6 +12,7 @@ func HashObject(flags []string) {
 	// It also won't do anything more than print or write to the DB so more/less flags = bad
 	if len(flags) > 2 || len(flags) < 1 {
 		printHashObjectUsage()
+		return
 	}
 
 	write := false

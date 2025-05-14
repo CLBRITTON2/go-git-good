@@ -12,6 +12,7 @@ import (
 func UpdateIndex(flags []string) {
 	if len(flags) < 2 {
 		printUpdateIndexUsage()
+		return
 	}
 	if flags[0] != "-add" && flags[0] != "-rm" {
 		fmt.Println("Unsupported flag...")
@@ -108,4 +109,5 @@ func UpdateIndex(flags []string) {
 
 func printUpdateIndexUsage() {
 	fmt.Println("Usage: gitgood update-index -add <filename>         Add a file to the staging area (index)")
+	fmt.Println("Usage: gitgood update-index -rm <filename>          Remove a file from the staging area (index)")
 }
