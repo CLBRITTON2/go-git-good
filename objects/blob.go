@@ -15,11 +15,20 @@ type Blob struct {
 func CreateBlobFromFile(fileToBlob string) (*Blob, error) {
 	data, err := os.ReadFile(fileToBlob)
 	if err != nil {
-		return nil, fmt.Errorf("error reading file for blob: %v", fileToBlob)
+		return nil, fmt.Errorf("error reading file for blob: %v", err)
 	}
+
+	hash, err := common.HashObject("blob", data)
+	if err != nil {
+		return nil, err
+	}
+	if hash.Empty() {
+		return nil, fmt.Errorf("error creating blob from file: HashObject returned an empty hash")
+	}
+
 	newBlob := &Blob{
 		Data: data,
-		Hash: common.HashObject("blob", data),
+		Hash: hash,
 	}
 	return newBlob, nil
 }
