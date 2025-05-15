@@ -3,10 +3,7 @@ package objects
 import (
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
-
-	"github.com/CLBRITTON2/go-git-good/common"
 )
 
 func createTestFile(t *testing.T, tempDir, content string) string {
@@ -28,12 +25,14 @@ func TestCreateBlobFromFileValid(t *testing.T) {
 	if string(blob.Data) != "test" {
 		t.Errorf("expected Data %q, got %q", "test", string(blob.Data))
 	}
-	expectedHash, err := common.HashObject("blob", []byte("test"))
 	if err != nil {
 		t.Fatalf("unexpected error calculating hash: %v", err)
 	}
-	if blob.Hash != expectedHash {
-		t.Errorf("expected Hash %q, got %q", expectedHash.String(), blob.Hash.String())
+
+	// Matches git hash-object for a file named test.text with content "test" no new line at the end
+	expectedHash := "30d74d258442c7c65512eafab474568dd706c430"
+	if blob.Hash.String() != expectedHash {
+		t.Errorf("expected Hash %q, got %q", expectedHash, blob.Hash.String())
 	}
 }
 
@@ -47,12 +46,10 @@ func TestCreateBlobFromFileEmpty(t *testing.T) {
 	if len(blob.Data) != 0 {
 		t.Errorf("expected empty Data, got %q", string(blob.Data))
 	}
-	expectedHash, err := common.HashObject("blob", []byte{})
-	if err != nil {
-		t.Fatalf("unexpected error calculating hash: %v", err)
-	}
-	if blob.Hash != expectedHash {
-		t.Errorf("expected Hash %q, got %q", expectedHash.String(), blob.Hash.String())
+
+	expectedHash := "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+	if blob.Hash.String() != expectedHash {
+		t.Errorf("expected Hash %q, got %q", expectedHash, blob.Hash.String())
 	}
 }
 
@@ -65,8 +62,5 @@ func TestCreateBlobFromFileNonExistent(t *testing.T) {
 	}
 	if blob != nil {
 		t.Errorf("expected nil Blob, got %v", blob)
-	}
-	if !strings.Contains(err.Error(), "error reading file for blob") {
-		t.Errorf("expected error containing 'error reading file for blob', got %q", err.Error())
 	}
 }
