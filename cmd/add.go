@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 	"io/fs"
-	"os"
+	"path/filepath"
 
 	"github.com/CLBRITTON2/go-git-good/common"
 )
@@ -14,6 +14,7 @@ func Add(flags []string) {
 		printAddUsage()
 		return
 	}
+
 	repository, err := common.FindRepository(".")
 	if err != nil {
 		fmt.Printf("%v\n", err)
@@ -23,8 +24,10 @@ func Add(flags []string) {
 	// Walk the entire work tree and all sub directories, add to the index
 	if flags[0] == "." {
 		root := repository.WorkTree
-		fileSystem := os.DirFS(root)
-		err := fs.WalkDir(fileSystem, ".", processEntry)
+		err := filepath.WalkDir(root, func(path string, entry fs.DirEntry, err error) error {
+			// Use repository.WorkTree as the base when determining paths
+			return processEntry(repository.WorkTree, path, entry, err)
+		})
 		if err != nil {
 			fmt.Printf("%v\n", err)
 			return
@@ -37,20 +40,25 @@ func Add(flags []string) {
 	UpdateIndex([]string{"-add", flags[0]})
 }
 
-func processEntry(path string, entry fs.DirEntry, err error) error {
+func processEntry(rootPath string, path string, entry fs.DirEntry, err error) error {
 	if err != nil {
 		return err
 	}
+
 	if entry.IsDir() && (entry.Name() == ".gitgood" || entry.Name() == ".git") {
 		return fs.SkipDir
 	}
 
-	if !entry.IsDir() {
-		if entry.Type().IsRegular() {
-			fmt.Printf("Found regular file: %v\n", path)
-			UpdateIndex([]string{"-add", path})
+	if !entry.IsDir() && entry.Type().IsRegular() {
+		// Calculate relative path from the repository root
+		relativePath, err := filepath.Rel(rootPath, path)
+		if err != nil {
+			return fmt.Errorf("error getting relative path %s: %v", path, err)
 		}
+
+		UpdateIndex([]string{"-add", relativePath})
 	}
+
 	return nil
 }
 
