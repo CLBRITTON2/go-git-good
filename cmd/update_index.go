@@ -14,7 +14,7 @@ func UpdateIndex(flags []string) {
 		printUpdateIndexUsage()
 		return
 	}
-	if flags[0] != "-add" && flags[0] != "-rm" {
+	if flags[0] != "-add" && flags[0] != "-remove" {
 		fmt.Println("Unsupported flag...")
 		printUpdateIndexUsage()
 		return
@@ -50,9 +50,9 @@ func UpdateIndex(flags []string) {
 		return
 	}
 
-	// We have the entry's path, if the -rm flag was passed we're safe to skip
+	// We have the entry's path, if the -remove flag was passed we're safe to skip
 	// metadata gathering for writing files to the index and just remove the entry
-	if flags[0] == "-rm" {
+	if flags[0] == "-remove" {
 		currentIndex.RemoveEntry(indexEntryRelativePath)
 		err = common.WriteIndex(repository, currentIndex)
 		if err != nil {
@@ -109,5 +109,5 @@ func UpdateIndex(flags []string) {
 
 func printUpdateIndexUsage() {
 	fmt.Println("Usage: gitgood update-index -add <filename>         Add a file to the staging area (index)")
-	fmt.Println("Usage: gitgood update-index -rm <filename>          Remove a file from the staging area (index)")
+	fmt.Println("Usage: gitgood update-index -remove <filename>      Remove a file from the staging area (index)")
 }
