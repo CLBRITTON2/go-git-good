@@ -9,11 +9,12 @@ import (
 )
 
 // Store repository root for directory walk
-// Not sure if this is the best way to do this and I hate lowercase...
+// Not sure if this is the best way to do this...
 var currentRepoRoot string
 
 func Add(flags []string) {
 	// Will only support single file or the entire work tree initially
+	// TODO: add support for adding a directory instead of just a file or the entire tree
 	if len(flags) != 1 {
 		printAddUsage()
 		return
@@ -29,6 +30,7 @@ func Add(flags []string) {
 	if flags[0] == "." {
 		// Set the global repository root before walking
 		currentRepoRoot = repository.WorkTree
+
 		err := filepath.WalkDir(currentRepoRoot, processEntry)
 		if err != nil {
 			fmt.Printf("%v\n", err)

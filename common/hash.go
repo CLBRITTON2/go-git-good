@@ -10,6 +10,7 @@ type Hash [20]byte
 
 var validObjectTypes = map[string]bool{
 	"blob": true,
+	"tree": true,
 }
 
 func HashObject(objectType string, data []byte) (Hash, error) {

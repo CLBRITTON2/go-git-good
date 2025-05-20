@@ -62,10 +62,16 @@ func UpdateIndex(flags []string) {
 		return
 	}
 
+	// Create the blob and write it to the DB (Git does this by default)
 	blob, err := objects.CreateBlobFromFile(file)
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
+	}
+	serializedBlobData := blob.Serialize()
+	err = repository.WriteObject(blob.Hash.String(), serializedBlobData)
+	if err != nil {
+		fmt.Printf("%v\n", err)
 	}
 
 	// Start getting metadata for the index file

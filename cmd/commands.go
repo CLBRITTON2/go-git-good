@@ -18,6 +18,8 @@ func Execute(command string, flags []string) {
 		LsFiles(flags)
 	case "add":
 		Add(flags)
+	case "write-tree":
+		WriteTree(flags)
 	default:
 		fmt.Println("Unsupported command...")
 		PrintUsage()
