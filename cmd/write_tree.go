@@ -37,5 +37,5 @@ func WriteTree(flags []string) {
 }
 
 func printWriteTreeUsage() {
-	fmt.Println("Usage: gitgood write-tree         Add a file to the staging area (index)")
+	fmt.Println("Usage: gitgood write-tree         Creates a tree object from the current index and writes it to the DB")
 }

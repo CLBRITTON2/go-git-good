@@ -20,6 +20,8 @@ func Execute(command string, flags []string) {
 		Add(flags)
 	case "write-tree":
 		WriteTree(flags)
+	case "ls-tree":
+		LsTree(flags)
 	default:
 		fmt.Println("Unsupported command...")
 		PrintUsage()
@@ -34,5 +36,6 @@ func PrintUsage() {
 	fmt.Println("cat-file      Print the contents of an object in the DB")
 	fmt.Println("update-index  Register file contents in the working tree to the index")
 	fmt.Println("ls-files      Show information about files in the index")
-	fmt.Println("add           Add file contents to the index")
+	fmt.Println("add           Add file contents to the index and DB")
+	fmt.Println("write-tree    Create a tree object from the current index and write it to the DB")
 }
