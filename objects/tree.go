@@ -83,6 +83,10 @@ func BuildTreeFromIndex(index *common.Index) (*Tree, map[string]*Tree, error) {
 
 	// Build trees from the bottom up: start
 	for _, directory := range directoriesByDepth {
+		// Don't add the root tree to itself
+		if directory == "" {
+			continue
+		}
 		tree := trees[directory]
 		serializedTreeData := tree.Serialize()
 		hash, err := common.HashObject(serializedTreeData)
@@ -90,11 +94,6 @@ func BuildTreeFromIndex(index *common.Index) (*Tree, map[string]*Tree, error) {
 			return nil, nil, err
 		}
 		tree.Hash = hash
-
-		// Don't add the root tree to itself
-		if directory == "" {
-			continue
-		}
 
 		// Add this tree to its parent
 		parent := filepath.Dir(directory)
@@ -106,8 +105,17 @@ func BuildTreeFromIndex(index *common.Index) (*Tree, map[string]*Tree, error) {
 		})
 	}
 
-	// Return root
-	return trees[""], trees, nil
+	// Calculate hash for the root tree
+	rootTree := trees[""]
+	serializedRootTreeData := rootTree.Serialize()
+	rootHash, err := common.HashObject(serializedRootTreeData)
+	if err != nil {
+		return nil, nil, err
+	}
+	rootTree.Hash = rootHash
+
+	// Return root and trees map so each tree can be written to the object DB
+	return rootTree, trees, nil
 }
 
 // Convert "." to an empty string for relative root directories (hashing consistency with Git)
