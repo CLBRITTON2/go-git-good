@@ -17,19 +17,18 @@ func CreateBlobFromFile(fileToBlob string) (*Blob, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error reading file for blob: %v", err)
 	}
-
-	hash, err := common.HashObject("blob", data)
+	newBlob := &Blob{
+		Data: data,
+	}
+	serializedBlobData := newBlob.Serialize()
+	hash, err := common.HashObject(serializedBlobData)
 	if err != nil {
 		return nil, err
 	}
 	if hash.Empty() {
 		return nil, fmt.Errorf("error creating blob from file: HashObject returned an empty hash")
 	}
-
-	newBlob := &Blob{
-		Data: data,
-		Hash: hash,
-	}
+	newBlob.Hash = hash
 	return newBlob, nil
 }
 

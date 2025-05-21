@@ -10,7 +10,7 @@ import (
 
 func CatFile(flags []string) {
 	if len(flags) != 1 {
-		PrintCatFileUsage()
+		printCatFileUsage()
 		return
 	}
 	objectHash := flags[0]
@@ -43,13 +43,15 @@ func CatFile(flags []string) {
 		return
 	}
 	objectType := parts[0]
-	content := string(rawObjectData[nullIndex+1:])
 	switch objectType {
 	case "blob":
+		content := string(rawObjectData[nullIndex+1:])
 		fmt.Printf("%v", content)
+	case "tree":
+		LsTree(flags)
 	}
 }
 
-func PrintCatFileUsage() {
+func printCatFileUsage() {
 	fmt.Println("Usage: gitgood cat-file <object-hash>          Print the file contents")
 }

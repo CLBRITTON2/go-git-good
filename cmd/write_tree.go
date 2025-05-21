@@ -24,16 +24,22 @@ func WriteTree(flags []string) {
 		return
 	}
 
-	tree, err := objects.BuildTreeFromIndex(index)
+	rootTree, trees, err := objects.BuildTreeFromIndex(index)
 	if err != nil {
 		fmt.Printf("%v\n", err)
+		return
 	}
 
-	// Serializing this tree again is redundant - look for a better way to avoid repeat
-	// tree serialization since serialize requires a sort
-	serializedTreeData := tree.Serialize()
-	repository.WriteObject(tree.Hash.String(), serializedTreeData)
-	fmt.Printf("%v\n", tree.Hash)
+	for _, tree := range trees {
+		serializedTreeData := tree.Serialize()
+		err = repository.WriteObject(tree.Hash.String(), serializedTreeData)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			return
+		}
+
+	}
+	fmt.Printf("%v\n", rootTree.Hash)
 }
 
 func printWriteTreeUsage() {

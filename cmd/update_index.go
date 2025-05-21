@@ -26,11 +26,6 @@ func UpdateIndex(flags []string) {
 		fmt.Printf("%v\n", err)
 		return
 	}
-	fileInfo, err := os.Stat(absolutePath)
-	if err != nil {
-		fmt.Printf("%v\n", err)
-		return
-	}
 
 	// Find the repository, find the index, create the index entry path
 	// Which is the object's path relative to the work tree
@@ -75,6 +70,11 @@ func UpdateIndex(flags []string) {
 	}
 
 	// Start getting metadata for the index file
+	fileInfo, err := os.Stat(absolutePath)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		return
+	}
 	modifiedTime := fileInfo.ModTime()
 	fileSize := uint32(fileInfo.Size())
 	mode := fileInfo.Mode()

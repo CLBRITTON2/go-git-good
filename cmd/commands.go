@@ -38,4 +38,5 @@ func PrintUsage() {
 	fmt.Println("ls-files      Show information about files in the index")
 	fmt.Println("add           Add file contents to the index and DB")
 	fmt.Println("write-tree    Create a tree object from the current index and write it to the DB")
+	fmt.Println("ls-tree       List the contents of a tree object")
 }

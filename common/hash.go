@@ -3,25 +3,13 @@ package common
 import (
 	"crypto/sha1"
 	"encoding/hex"
-	"fmt"
 )
 
 type Hash [20]byte
 
-var validObjectTypes = map[string]bool{
-	"blob": true,
-	"tree": true,
-}
-
-func HashObject(objectType string, data []byte) (Hash, error) {
-	if !validObjectTypes[objectType] {
-		return Hash{}, fmt.Errorf("invalid object type at HashObject: %s", objectType)
-	}
-
-	header := fmt.Sprintf("%s %d\x00", objectType, len(data))
-	serializedData := append([]byte(header), data...)
+func HashObject(data []byte) (Hash, error) {
 	hasher := sha1.New()
-	hasher.Write(serializedData)
+	hasher.Write(data)
 	sha1 := hasher.Sum(nil)
 	var hash Hash
 	copy(hash[:], sha1)

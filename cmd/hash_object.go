@@ -46,9 +46,8 @@ func HashObject(flags []string) {
 		return
 	}
 
-	blobHashString := blob.Hash.String()
 	serializedBlobData := blob.Serialize()
-	err = repository.WriteObject(blobHashString, serializedBlobData)
+	err = repository.WriteObject(blob.Hash.String(), serializedBlobData)
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
