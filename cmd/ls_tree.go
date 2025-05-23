@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
+	"strings"
 
 	"github.com/CLBRITTON2/go-git-good/common"
 	"github.com/CLBRITTON2/go-git-good/objects"
@@ -28,10 +30,46 @@ func LsTree(flags []string) {
 		fmt.Printf("%v\n", err)
 		return
 	}
-	tree, err := objects.ParseTree(rawObjectData)
-	if err != nil {
-		fmt.Printf("%v\n", err)
+
+	nullIndex := bytes.IndexByte(rawObjectData, byte('\x00'))
+	if nullIndex == -1 {
+		fmt.Printf("invalid object format: no null byte found")
 		return
+	}
+
+	header := string(rawObjectData[:nullIndex])
+	parts := strings.Split(header, " ")
+	if len(parts) != 2 {
+		fmt.Printf("invalid object header format expected <type> <data length> got: %s", header)
+		return
+	}
+
+	objectType := parts[0]
+	var tree *objects.Tree
+	switch objectType {
+	case "tree":
+		tree, err = objects.ParseTree(rawObjectData)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			return
+		}
+	case "commit":
+		commit, err := objects.ParseCommit(rawObjectData)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			return
+		}
+		tree = commit.Tree
+		rawTreeData, err := repository.ReadObject(tree.Hash.String())
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			return
+		}
+		tree, err = objects.ParseTree(rawTreeData)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			return
+		}
 	}
 
 	// Create the same format that Git uses for ls-tree and cat-file -p with a tree hash
