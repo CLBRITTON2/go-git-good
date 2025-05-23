@@ -8,12 +8,14 @@ The following commands are implemented:
 
 - [`init [path]`](./cmd/init.go): Initializes a new Git repository at the specified path (defaults to current directory).
 - [`hash-object [-w] <file>`](./cmd/hash_object.go): Computes a file's SHA-1 hash, with an option to write the blob to the object database.
-- [`cat-file <object-hash>`](./cmd/cat_file.go): Displays the contents of a repository object (currently supports blobs).
+- [`cat-file <object-hash>`](./cmd/cat_file.go): Displays the contents of a repository object (currently supports blobs, trees, and commits).
 - [`update-index [-add | -remove] <filename>`](./cmd/update_index.go): Adds or removes a file from the index.
 - [`ls-files [-s]`](./cmd/ls_files.go): Lists files in the index, with an option to show detailed stage information (mode bits, hash, and path).
 - [`add <filename> | .`](./cmd/add.go): Stages a single file or all files in the working directory to the index.
 - [`write-tree`](./cmd/write_tree.go): Creates a tree object from the current index and writes it to the object database.
-- [`ls-tree <tree-hash>`](./cmd/ls_tree.go): Print the tree contents
+- [`ls-tree <tree-hash>`](./cmd/ls_tree.go): Print the tree contents (supports trees and commits)
+- [`commit -m <message>`](./cmd/commit.go): Record changes to the repository
+- [`log`](./cmd/log.go): Show commit logs
 
 ## Setup
 
