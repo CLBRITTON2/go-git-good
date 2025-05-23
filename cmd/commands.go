@@ -43,4 +43,6 @@ func PrintUsage() {
 	fmt.Println("add           Add file contents to the index and DB")
 	fmt.Println("write-tree    Create a tree object from the current index and write it to the DB")
 	fmt.Println("ls-tree       List the contents of a tree object")
+	fmt.Println("commit        Record changes to the repository")
+	fmt.Println("log           Show commit logs")
 }

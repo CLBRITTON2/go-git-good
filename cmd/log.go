@@ -49,7 +49,7 @@ func printCommitHistory(repository *common.Repository, ref *common.Ref, branch s
 	if isHead {
 		commitHeader += fmt.Sprintf(" (HEAD -> %s)", branch)
 	}
-	fmt.Printf("%s\nAuthor: %s\nDate: %v\n\n    %s\n\n", commitHeader, commit.Author, commit.Timestamp.Format("Mon Jan 02 15:04:05 2006 -0700"), commit.Message)
+	fmt.Printf("%s\nAuthor: %s\nDate: %v\n\n    %s\n", commitHeader, commit.Author, commit.Timestamp.Format("Mon Jan 02 15:04:05 2006 -0700"), commit.Message)
 
 	// Recursively process the first parent (if any)
 	if len(commit.Parents) > 0 {
