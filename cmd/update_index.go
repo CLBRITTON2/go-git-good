@@ -34,7 +34,7 @@ func UpdateIndex(flags []string) {
 		fmt.Printf("%v\n", err)
 		return
 	}
-	currentIndex, err := common.FindIndex(repository)
+	currentIndex, err := common.GetIndex(repository)
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return

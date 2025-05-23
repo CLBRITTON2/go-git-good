@@ -3,15 +3,23 @@ package common
 import (
 	"bytes"
 	"compress/zlib"
+	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type Repository struct {
 	WorkTree     string
 	GitDirectory string
+}
+
+type Ref struct {
+	Name string
+	Hash Hash
 }
 
 func CreateRepository(path string) (*Repository, error) {
@@ -38,7 +46,6 @@ func CreateRepository(path string) (*Repository, error) {
 		return nil, fmt.Errorf("git repository already exists at %v", path)
 	}
 
-	fmt.Printf("Creating an empty gitgood repository at: %v\n", path)
 	err = os.MkdirAll(repository.GitDirectory, 0755)
 	if err != nil {
 		return nil, fmt.Errorf("error creating .git directory: %v", err)
@@ -60,7 +67,7 @@ func CreateRepository(path string) (*Repository, error) {
 		return nil, fmt.Errorf("error writing default config file: %v", err)
 	}
 
-	defaultHeadContents := []byte("ref: refs/heads/master\n")
+	defaultHeadContents := []byte("ref: refs/heads/main\n")
 	err = os.WriteFile(filepath.Join(repository.GitDirectory, "HEAD"), defaultHeadContents, 0644)
 	if err != nil {
 		return nil, fmt.Errorf("error writing HEAD file: %v", err)
@@ -72,6 +79,7 @@ func CreateRepository(path string) (*Repository, error) {
 		return nil, fmt.Errorf("error writing description file: %v", err)
 	}
 
+	fmt.Printf("Initialized empty gitgood repository in %v\n", path)
 	return &repository, nil
 }
 
@@ -156,4 +164,65 @@ func (repository *Repository) ReadObject(objectHash string) ([]byte, error) {
 	}
 
 	return decompressedData.Bytes(), nil
+}
+
+// Initial implementation will just support main branch
+// We'll read the HEAD file to find the current branch then use that to search
+// the .gitgood/refs/heads/ directory to find a ref if it exists, otherwise create one
+func (repository *Repository) FindRef(branch string) (*Ref, error) {
+	refPath := filepath.Join(repository.GitDirectory, "refs", "heads", branch)
+	refInfo, err := os.ReadFile(refPath)
+	if err != nil {
+		// Return an empty ref if one does't exist
+		if errors.Is(err, os.ErrNotExist) {
+			return &Ref{
+				Name: branch,
+				Hash: Hash{},
+			}, nil
+		}
+		return nil, err
+	}
+
+	hashString := strings.TrimSpace(string(refInfo))
+	if len(hashString) != 40 {
+		return nil, fmt.Errorf("invalid hash length reading ref %v", branch)
+	}
+	hashBytes, err := hex.DecodeString(hashString)
+	if err != nil {
+		return nil, err
+	}
+	hash := [20]byte(hashBytes)
+	return &Ref{
+		Name: branch,
+		Hash: hash,
+	}, nil
+}
+
+func (repository *Repository) WriteRef(ref *Ref, branch string) error {
+	refPath := filepath.Join(repository.GitDirectory, "refs", "heads", branch)
+	file, err := os.Create(refPath)
+	if err != nil {
+		return err
+	}
+	_, err = file.Write([]byte(ref.Hash.String() + "\n"))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// This won't support a detached HEAD yet - that would just contain a commit SHA
+// Until branching is implemented this should always read the default branch from HEAD which is main
+func (repository *Repository) GetBranch() (string, error) {
+	path := filepath.Join(repository.GitDirectory, "HEAD")
+	fileInfo, err := os.ReadFile(path)
+	if err != nil {
+		return "", err
+	}
+	content := strings.TrimSpace(string(fileInfo))
+	if strings.HasPrefix(content, "ref: refs/heads/") {
+		branch := strings.TrimPrefix(content, "ref: refs/heads/")
+		return branch, nil
+	}
+	return "", nil
 }

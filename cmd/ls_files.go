@@ -18,7 +18,7 @@ func LsFiles(flags []string) {
 		fmt.Printf("%v\n", err)
 		return
 	}
-	index, err := common.FindIndex(repository)
+	index, err := common.GetIndex(repository)
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return

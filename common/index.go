@@ -24,7 +24,19 @@ type IndexEntry struct {
 	EntryPath    string
 }
 
-func FindIndex(repository *Repository) (*Index, error) {
+func (index *Index) Exists(repository *Repository) (bool, error) {
+	indexPath := filepath.Join(repository.GitDirectory, "index")
+	_, err := os.ReadFile(indexPath)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+func GetIndex(repository *Repository) (*Index, error) {
 	indexPath := filepath.Join(repository.GitDirectory, "index")
 	index, err := ReadIndex(indexPath)
 	if err != nil {

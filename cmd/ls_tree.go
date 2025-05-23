@@ -31,6 +31,7 @@ func LsTree(flags []string) {
 	tree, err := objects.ParseTree(rawObjectData)
 	if err != nil {
 		fmt.Printf("%v\n", err)
+		return
 	}
 
 	// Create the same format that Git uses for ls-tree and cat-file -p with a tree hash

@@ -8,19 +8,36 @@ import (
 )
 
 func WriteTree(flags []string) {
-	if len(flags) != 0 {
+	// This is just going to be an internal flag to avoid printing the root tree hash when committing
+	// It would probably be better to just return the root tree hash from this command and print it
+	// One level up but that would require restructuring all commands to function the same... TODO maybe?
+	quiet := false
+	if len(flags) == 1 && flags[0] == "-q" {
+		quiet = true
+	} else if len(flags) > 0 {
 		printWriteTreeUsage()
 		return
 	}
+
 	repository, err := common.FindRepository(".")
 	if err != nil {
 		fmt.Printf("%v\n", err)
 		return
 	}
 
-	index, err := common.FindIndex(repository)
+	index, err := common.GetIndex(repository)
 	if err != nil {
 		fmt.Printf("%v\n", err)
+		return
+	}
+
+	exists, err := index.Exists(repository)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		return
+	}
+	if !exists {
+		fmt.Println("No files have been staged in the index. Use update-index or add to stage files to write a tree.")
 		return
 	}
 
@@ -37,9 +54,10 @@ func WriteTree(flags []string) {
 			fmt.Printf("%v\n", err)
 			return
 		}
-
 	}
-	fmt.Printf("%v\n", rootTree.Hash)
+	if !quiet {
+		fmt.Printf("%v\n", rootTree.Hash)
+	}
 }
 
 func printWriteTreeUsage() {

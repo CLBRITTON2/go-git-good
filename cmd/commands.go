@@ -22,6 +22,8 @@ func Execute(command string, flags []string) {
 		WriteTree(flags)
 	case "ls-tree":
 		LsTree(flags)
+	case "commit":
+		Commit(flags)
 	default:
 		fmt.Println("Unsupported command...")
 		PrintUsage()

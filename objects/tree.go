@@ -61,7 +61,6 @@ func BuildTreeFromIndex(index *common.Index) (*Tree, map[string]*Tree, error) {
 	for directory := range trees {
 		directoriesByDepth = append(directoriesByDepth, directory)
 	}
-
 	sort.Slice(directoriesByDepth, func(i, j int) bool {
 		// Count path separators to determine depth
 		depthI := strings.Count(directoriesByDepth[i], string(filepath.Separator))
