@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/CLBRITTON2/go-git-good/common"
+	"github.com/CLBRITTON2/go-git-good/objects"
 )
 
 func CatFile(flags []string) {
@@ -49,6 +50,16 @@ func CatFile(flags []string) {
 		fmt.Printf("%v", content)
 	case "tree":
 		LsTree(flags)
+	case "commit":
+		content := rawObjectData[nullIndex:]
+		commit, err := objects.ParseCommit(content)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+		}
+		utcOffset := fmt.Sprintf("%d %s", commit.Timestamp.Unix(), commit.Timestamp.Format("-0700"))
+		commitString := fmt.Sprintf("tree %s\nauthor %s %s\ncommitter %v %s\n", commit.Tree.Hash.String(), commit.Author, utcOffset, commit.Author, utcOffset)
+		fmt.Println(commitString)
+
 	}
 }
 

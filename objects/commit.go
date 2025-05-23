@@ -25,7 +25,7 @@ func (commit *Commit) Serialize() []byte {
 	content := fmt.Sprintf("tree %v\n", commit.Tree.Hash)
 	for _, parent := range commit.Parents {
 		if !parent.Empty() {
-			content += fmt.Sprintf("parent %v", parent)
+			content += fmt.Sprintf("parent %v\n", parent)
 		}
 	}
 	utcOffset := fmt.Sprintf("%d %s", commit.Timestamp.Unix(), commit.Timestamp.Format("-0700"))
@@ -38,7 +38,7 @@ func (commit *Commit) Serialize() []byte {
 	return append([]byte(header), []byte(content)...)
 }
 
-func (commit *Commit) ParseCommit(rawCommitData []byte) (*Commit, error) {
+func ParseCommit(rawCommitData []byte) (*Commit, error) {
 	// Find the null byte that separates header from content
 	nullIndex := bytes.IndexByte(rawCommitData, byte('\x00'))
 	if nullIndex == -1 {
