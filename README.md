@@ -63,6 +63,10 @@ For detailed usage, run `./gitgood` without arguments to see the help menu, or r
 - `cmd/`: Contains command implementations (linked above).
 - `common/`: Shared utilities for repository ([`repository.go`](./common/repository.go)) and index management ([`index.go`](./common/index.go)).
 - `objects/`: Logic for creating Git objects, such as blobs.
+## Examples with Git comparison
+
+https://github.com/user-attachments/assets/3fdb27e4-9b68-4f5b-aa60-b4f53fdb5e3f
+
 ## Notes
 
 - This project is a learning exercise and not a replacement for Git. It lacks many features and optimizations found in the official Git implementation.
