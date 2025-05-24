@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"io/fs"
+	"os"
 	"path/filepath"
 
 	"github.com/CLBRITTON2/go-git-good/common"
@@ -13,8 +14,6 @@ import (
 var currentRepoRoot string
 
 func Add(flags []string) {
-	// Will only support single file or the entire work tree initially
-	// TODO: add support for adding a directory instead of just a file or the entire tree
 	if len(flags) != 1 {
 		printAddUsage()
 		return
@@ -26,12 +25,27 @@ func Add(flags []string) {
 		return
 	}
 
+	flagIsDirectory, err := isDir(flags[0])
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		return
+	}
+
 	// Walk the entire work tree and all sub directories, add to the index
 	if flags[0] == "." {
 		// Set the global repository root before walking
 		currentRepoRoot = repository.WorkTree
 
 		err := filepath.WalkDir(currentRepoRoot, processEntry)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+		}
+		return
+	}
+
+	// Only walk the specified directory
+	if flagIsDirectory {
+		err := filepath.WalkDir(flags[0], processEntry)
 		if err != nil {
 			fmt.Printf("%v\n", err)
 		}
@@ -61,6 +75,14 @@ func processEntry(path string, entry fs.DirEntry, err error) error {
 	}
 
 	return nil
+}
+
+func isDir(path string) (bool, error) {
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		return false, err
+	}
+	return fileInfo.IsDir(), nil
 }
 
 func printAddUsage() {
