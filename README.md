@@ -6,7 +6,7 @@ Go-Git-Good is a research project written in Go to explore Git internals by impl
 
 #### Porcelain:
 - [`init [path]`](./cmd/init.go): Initializes a new gitgood repository at the specified path (defaults to current directory).
-- [`add <filename> | .`](./cmd/add.go): Stages a single file or all files in the working directory to the index.
+- [`add <filename> | <dirname> | .`](./cmd/add.go): Stages a single file, an entire directory, or all files in the working directory to the index.
 - [`commit -m <message>`](./cmd/commit.go): Record changes to the repository
 - [`log`](./cmd/log.go): Show commit logs
 
