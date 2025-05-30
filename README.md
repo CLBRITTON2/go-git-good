@@ -1,6 +1,6 @@
 # Go-Git-Good
 
-Go-Git-Good is a research project written in Go to explore Git internals by implementing core Git commands from scratch, ranging from low-level plumbing to high-level porcelain commands. This project is purely educational and not intended for production use—please use the official [Git](https://git-scm.com/) (or [Go-Git](https://github.com/go-git/go-git)) for real version control needs.
+Go-Git-Good is a research project written in Go to explore Git internals by implementing core Git commands from scratch, ranging from low-level plumbing to high-level porcelain commands. This project is purely educational and not intended for production use—please use the official [Git](https://git-scm.com/) for real version control needs.
 
 ## Implemented Commands
 
